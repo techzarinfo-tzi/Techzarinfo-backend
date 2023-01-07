@@ -43,7 +43,7 @@ router.post('/store-data', [ check('name','Name is required').not().isEmpty().is
         
         var mailOptions = {
             from: 'baskar.techzar@gmail.com',
-            to: 'baskar.techzar@gmail.com',
+            to: 'sales@techzarinfo.com',
             subject: 'CONTACT US',
             template: 'contact', // the name of the template file i.e email.handlebars
             context:{
@@ -129,7 +129,7 @@ router.post('/store-hire-a-developer', [ check('name','Full Name is required').n
         
         var mailOptions = {
             from: 'baskar.techzar@gmail.com',
-            to: 'baskar.techzar@gmail.com',
+            to: 'sales@techzarinfo.com',
             subject: 'HIRE A DEVELOPER',
             template: 'hire-a-developer', // the name of the template file i.e email.handlebars
             context:{
