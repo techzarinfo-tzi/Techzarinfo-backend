@@ -104,6 +104,7 @@ router.post('/store-hire-a-developer', [ check('name','Full Name is required').n
         const hbs = require('nodemailer-express-handlebars')
         var nodemailer = require('nodemailer');
         const path = require('path')
+        const request = req.body;
         
         // initialize nodemailer
         var transporter = nodemailer.createTransport({
@@ -148,7 +149,6 @@ router.post('/store-hire-a-developer', [ check('name','Full Name is required').n
                     status: 0
                 });
             } else {
-                const request = req.body;
                 const hire = new Hire(request)
 
                 let response = await hire.save()
