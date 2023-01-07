@@ -132,8 +132,11 @@ router.post('/store-hire-a-developer', [ check('name','Full Name is required').n
             subject: 'HIRE A DEVELOPER',
             template: 'hire-a-developer', // the name of the template file i.e email.handlebars
             context:{
-                name: "baskar", // replace {{name}} with Adebola
-                company: 'TechZarInfo' // replace {{company}} with My Company
+                name: request.name, 
+                phone: request.phone, 
+                email: request.email, 
+                company: request.company, 
+                message: request.message
             }
         };
 

@@ -3,10 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Welcome Email</title>
+  <title>Contact Us Email</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-  <h2>Hello {{name}}! </h2>
-  <p>We're glad to have you on board at {{company}}. </p>
+  <table>
+    <tbody>
+    <tr class="p-5" style="display:block;padding: 10px;">
+        <th style="display:inline-flex;padding: 10px;">Name</th>
+        <td style="display:inline-flex;padding: 10px;">{{name}}</td>
+    </tr>
+    <tr class="p-5" style="display:block;padding: 10px;">
+        <th style="display:inline-flex;padding: 10px;">Phone</th>
+        <td style="display:inline-flex;padding: 10px;">{{phone}}</td>
+    </tr>
+    <tr class="p-5" style="display:block;padding: 10px;">
+        <th style="display:inline-flex;padding: 10px;">Email</th>
+        <td style="display:inline-flex;padding: 10px;">{{email}}</td>
+    </tr>
+    <tr class="p-5" style="display:block;padding: 10px;">
+        <th style="display:inline-flex;padding: 10px;">Company</th>
+        <td style="display:inline-flex;padding: 10px;">{{company}}</td>
+    </tr>
+    <tr class="p-5" style="display:block;padding: 10px;">
+        <th style="display:inline-flex;padding: 10px;">Message</th>
+        <td style="display:inline-flex;padding: 10px;">{{message}}</td>
+    </tr>
+    </tbody>
+  </table>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
