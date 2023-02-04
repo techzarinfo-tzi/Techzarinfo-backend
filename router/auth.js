@@ -220,40 +220,13 @@ router.post('/store-post', upload.single('image'),[ check('title','title is requ
     }
 })
 //Get Post
-router.post('/get-post', async (req,res)=>{
-    try {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(200).json({
-                status: 0,
-                errors: errors.array()
-            });
-        }
-        const path = require('path')
-        const request = req.body;
-
-        const post = new Post(request)
-
-        let response = await post.get()
-
-        if(response) {
-            return res.status(200).json({
-                data: response,
-                status: 1
-            });
-        } else {
-            return res.status(200).json({
-                message: err.message,
-                status: 0
-            });
-        }
-        
-    } catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 0
-        })
+router.get('/get-post', async (req, res, next)=>{
+    try{
+        const data = await Post.find();
+        return res.json(data)
+    }
+    catch(error){
+        return res.status(500).json({message: error.message})
     }
 })
 //Get Post
