@@ -22,5 +22,6 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/',auth)
 
-
+app.use(express.static('public')); 
+app.use('/uploads', express.static('uploads'))
 app.listen(3001,()=>console.log('bas'))
