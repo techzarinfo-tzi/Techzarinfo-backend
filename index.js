@@ -23,6 +23,6 @@ const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/", auth);
-
-app.use("/public", express.static(__dirname + "/public"));
+app.use(express.static('public')); 
+app.use('/uploads', express.static('uploads'))
 app.listen(3001, () => console.log("bas"));
