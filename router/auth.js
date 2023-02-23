@@ -49,7 +49,7 @@ router.post(
         service: "gmail",
         auth: {
           user: "sales@techzarinfo.com",
-          pass: "cykwmwndsokrtcrv",
+          pass: "yirdglarnqbpvscf",
         },
       });
 
@@ -243,7 +243,7 @@ router.post(
         service: "gmail",
         auth: {
           user: "sales@techzarinfo.com",
-          pass: "cykwmwndsokrtcrv",
+          pass: "yirdglarnqbpvscf",
         },
       });
 
@@ -278,7 +278,7 @@ router.post(
       transporter.sendMail(mailOptions, async function (error, info) {
         if (error) {
           return res.status(200).json({
-            message: err.message,
+            message: error.message,
             status: 0,
           });
         } else {
