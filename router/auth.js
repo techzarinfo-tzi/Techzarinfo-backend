@@ -6,7 +6,10 @@ const Hire = require("../model/Hire");
 const Post = require("../model/Post");
 const Career = require("../model/Careers");
 const multer = require("multer");
+const Register = require("../model/Register");
 const upload = multer({ dest: "./public/uploads/" });
+const bcrypt = require("bcrypt");
+const fs = require('fs');
 // CONTACT US
 router.post(
   "/store-data",
@@ -109,6 +112,96 @@ router.post(
         status: 0,
       });
     }
+  }
+);
+//Register
+router.post(
+  "/store-register",
+  [
+    check("name", "Full Name is required")
+      .not()
+      .isEmpty()
+      .withMessage("Full Name must be at least 6 chars long"),
+    check("email", "Email is required").isEmail().normalizeEmail(),
+    check("password", "password is required")
+      .not()
+      .isEmpty()
+      .withMessage("password"),
+  ],
+  async (req, res) => {
+    let verify_email=req.body.email;
+    let verify=await Register.findOne({ email: verify_email });
+    const saltRounds = await bcrypt.genSalt(10);
+    const hashedPwd = await bcrypt.hash(req.body.password, saltRounds);
+    var regUser=new Register({
+      name:req.body.name,
+      email:req.body.email,
+      password:hashedPwd
+    });
+    if(!verify){
+    let response = await regUser.save();
+    if(response){
+      return res.status(200).json({
+        message: "Your request sent successfully",
+        status: 1,
+      });
+    }
+    else{
+      return res.status(200).json({
+        message: err.message,
+        status: 0,
+      });
+    }
+  }
+  else{
+    return res.status(200).json({
+      message: "Your email is Already Exists",
+      status: 0,
+    });
+  }
+
+
+  }
+);
+//Login
+router.post(
+  "/store-login",
+  [
+    check("email", "Email is required").isEmail().normalizeEmail(),
+    check("password", "password is required")
+      .not()
+      .isEmpty()
+      .withMessage("password"),
+  ],
+  async (req, res) => {
+      const admin_email=req.body.email;
+      const admin_password=req.body.password;
+   
+    let response = await Register.findOne({ email: admin_email });
+    if(response){
+     const res_password=response.password;
+     const cmp = await bcrypt.compare(admin_password, response.password);
+     if(cmp){
+      return res.status(200).json({
+        message: "Your request sent successfully",
+        status: 1,
+        data:response
+      });
+    }
+    else{
+      return res.status(500).json({
+        message: "Your password is Incorrect",
+        status: 0,
+      });
+    }
+    }
+    else{
+      return res.status(200).json({
+        message: "Invalid email ",
+        status: 0,
+      });
+    }
+
   }
 );
 
@@ -230,7 +323,6 @@ router.post(
     try {
       const errors = validationResult(req);
       if (req.file) {
-        console.log("Uploaded: ", req.file);
         // Homework: Upload file to S3
         if (!errors.isEmpty()) {
           return res.status(200).json({
@@ -266,11 +358,85 @@ router.post(
     }
   }
 );
+//Edit Post
+router.post(
+  "/edit-post/:id",
+  upload.single("image"),
+  [
+    check("title", "title is required")
+      .not()
+      .isEmpty()
+      .isLength({ min: 6 })
+      .withMessage("Title must be at least 6 chars long"),
+    check("message", "Message is required").not().isEmpty(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (req.file) {
+        // Homework: Upload file to S3
+        if (!errors.isEmpty()) {
+          return res.status(200).json({
+            status: 0,
+            errors: errors.array(),
+          });
+        }
+        const path = require("path");
+        req.body.image = req.file.filename;
+        const request = req.body;
+       const upadteimg=await Post.findById(req.params.id);
+       if(upadteimg){
+          var imageResponse = upadteimg.image; 
+          if(imageResponse!==req.body.image){
+          fs.unlink("./public/uploads/"+imageResponse , async (err) => {
+            if(!err){
+             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message, }});
+            if (response) {
+              return res.status(200).json({
+                message: "Your post updated successfully",
+                status: 1,
+              });
+            } else {
+            return res.status(200).json({
+              message: err.message,
+              status: 0,
+            });
+           }
+       }
+    });
+        }
+        else{
+          let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message, }});
+          if (response) {
+            return res.status(200).json({
+              message: "Your post updated successfully",
+              status: 1,
+            });
+          } else {
+            return res.status(200).json({
+              message: err.message,
+              status: 0,
+            });
+          }
+        }
+      }
+
+        
+      }
+    } catch (err) {
+      return res.status(500).json({
+        message: err.message,
+        status: 0,
+      });
+    }
+  }
+);
 //Get Post
 router.get("/get-post", async (req, res, next) => {
   try {
     const data = await Post.find();
     return res.json(data);
+    
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -293,7 +459,23 @@ router.get("/get-post/:post_id", async (req, res) => {
     });
   }
 });
+//delete Post
+router.get("/delete-post/:post_id", async (req, res) => {
+     deleteresponse = await Post.deleteOne({_id:req.params.post_id});
+    if (deleteresponse) {
+      return res.status(500).json({
+        status: 1,
+        message:"deleted Successfully"
+      });
+    } else {
+      return res.status(500).json({
+        status: 0,
+        message:"deleted unSuccessfully"
+      });
+    }
+  } );
 
+//Career Start
 //Career post
 router.post(
   "/store-careers",
@@ -310,7 +492,6 @@ router.post(
     try {
       const errors = validationResult(req);
       //   if (req.file) {
-      console.log("Uploaded: ", req.file);
       // Homework: Upload file to S3
       if (!errors.isEmpty()) {
         return res.status(200).json({
@@ -371,6 +552,100 @@ router.get("/get-careers/:id", async (req, res) => {
     if (response) {
       return res.send(response);
     } else {
+      return res.status(500).json({
+        status: 0,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      status: 0,
+    });
+  }
+});
+//Career get by id
+router.get("/delete-career/:careers_id", async (req, res) => {
+    let delresponse = await Career.deleteOne({_id:req.params.careers_id});
+    if (delresponse) {
+      return res.status(200).json({
+        status: 1,
+        message:"deleted Successfully"
+      });
+    } else {
+      return res.status(500).json({
+        status: 0,
+        message:"deleted unSuccessfully"
+      });
+    }
+});
+//Edit Career
+router.post(
+  "/edit-careers/:id",
+  upload.single("image"),
+  [
+    check("title", "title is required")
+      .not()
+      .isEmpty()
+      .isLength({ min: 6 })
+      .withMessage("Title must be at least 6 chars long"),
+    check("message", "Message is required").not().isEmpty(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      //   if (req.file) {
+      // Homework: Upload file to S3
+      if (!errors.isEmpty()) {
+        return res.status(200).json({
+          status: 0,
+          errors: errors.array(),
+        });
+      }
+      const path = require("path");
+      // req?.body?.image = req?.file?.filename;
+      const request = req.body;
+
+  
+
+      let cresponse = await Career.findOneAndUpdate({_id:req.params.id},{"$set":{"title":req.body.title,"message":req.body.message}});
+      if (cresponse) {
+        return res.status(200).json({
+          message: "Your post saved successfully",
+          status: 1,
+        });
+      } else {
+        return res.status(200).json({
+          message: err.message,
+          status: 0,
+        });
+      }
+      //   }
+    } catch (err) {
+      return res.status(500).json({
+        message: err.message,
+        status: 0,
+      });
+    }
+  }
+);
+//Career End
+
+// Dashboard
+router.get("/dashboard",async(req,res)=>{
+  try {
+    const users = await Register.count();
+    const blogs= await Post.count();
+    const careers=await Career.count();
+    const contact=await Contact.count();
+    if (users) {
+      return res.json({
+        usersCount:users,
+        blogsCount:blogs,
+        careersCount:careers,
+        contactCount:contact
+      });
+    } 
+      else {
       return res.status(500).json({
         status: 0,
       });
