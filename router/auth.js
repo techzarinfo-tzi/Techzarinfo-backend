@@ -85,7 +85,7 @@ router.post(
       transporter.sendMail(mailOptions, async function (error, info) {
         if (error) {
           return res.status(200).json({
-            message: err.message,
+            message: error.message,
             status: 0,
           });
         } else {
@@ -114,6 +114,43 @@ router.post(
     }
   }
 );
+
+// Get-contact
+router.get("/get-contact", async (req, res) => {
+  try {
+    const data = await Contact.find().sort({ $natural: -1 });
+    if (data) {
+      return res.json(data);
+    } else {
+      return res.status(500).json({
+        status: 0,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      status: 0,
+    });
+  }
+});
+
+//Delete-contact
+router.get("/delete-contact/:con_id", async (req, res) => {
+  deleteresponse = await Contact.deleteOne({_id:req.params.con_id});
+ if (deleteresponse) {
+   return res.status(500).json({
+     status: 1,
+     message:"deleted Successfully"
+   });
+ } else {
+   return res.status(500).json({
+     status: 0,
+     message:"deleted unSuccessfully"
+   });
+ }
+} );
+
+
 //Register
 router.post(
   "/store-register",
@@ -307,6 +344,43 @@ router.post(
     }
   }
 );
+
+//Get Hire A Developer 
+router.get("/get-hire", async (req, res) => {
+  try {
+    const data = await Hire.find().sort({ $natural: -1 });
+    if (data) {
+      return res.json(data);
+    } else {
+      return res.status(500).json({
+        status: 0,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      status: 0,
+    });
+  }
+});
+
+//Delete Hire A Developer 
+router.get("/delete-hire/:dev_id", async (req, res) => {
+    deleteresponse = await Hire.deleteOne({_id:req.params.dev_id});
+   if (deleteresponse) {
+     return res.status(500).json({
+       status: 1,
+       message:"deleted Successfully"
+     });
+   } else {
+     return res.status(500).json({
+       status: 0,
+       message:"deleted unSuccessfully"
+     });
+   }
+} );
+
+  
 //Post
 router.post(
   "/store-post",
@@ -434,13 +508,24 @@ router.post(
 //Get Post
 router.get("/get-post", async (req, res, next) => {
   try {
-    const data = await Post.find();
+    const data = await Post.find().sort({ $natural: -1 });
     return res.json(data);
     
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 });
+
+router.get("/get-post/Home", async (req, res, next) => {
+  try {
+    const data = await Post.find().sort({ $natural: -1 }).limit(3);
+    return res.json(data);
+    
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 //Get Post
 router.get("/get-post/:post_id", async (req, res) => {
   try {
@@ -473,7 +558,7 @@ router.get("/delete-post/:post_id", async (req, res) => {
         message:"deleted unSuccessfully"
       });
     }
-  } );
+} );
 
 //Career Start
 //Career post
@@ -530,7 +615,7 @@ router.post(
 //Career get
 router.get("/get-careers", async (req, res) => {
   try {
-    const data = await Career.find();
+    const data = await Career.find().sort({ $natural: -1 });
     if (data) {
       return res.json(data);
     } else {
@@ -633,6 +718,7 @@ router.post(
 // Dashboard
 router.get("/dashboard",async(req,res)=>{
   try {
+    const developer = await  Hire.count();
     const users = await Register.count();
     const blogs= await Post.count();
     const careers=await Career.count();
@@ -642,7 +728,8 @@ router.get("/dashboard",async(req,res)=>{
         usersCount:users,
         blogsCount:blogs,
         careersCount:careers,
-        contactCount:contact
+        contactCount:contact,
+        developerCount:developer,
       });
     } 
       else {
