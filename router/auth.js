@@ -381,7 +381,7 @@ router.get("/delete-hire/:dev_id", async (req, res) => {
 } );
 
   
-//Post
+//Blog Post
 router.post(
   "/store-post",
   upload.single("image"),
@@ -407,7 +407,14 @@ router.post(
         const path = require("path");
         req.body.image = req.file.filename;
         const request = req.body;
-
+        let check_title= await Post.findOne({title:request.title});
+        if(check_title){
+          return res.status(500).json({
+            message: "Title Already Exists",
+            status: 0,
+          });
+        }
+        else{
         const post = new Post(request);
 
         let response = await post.save();
@@ -417,11 +424,13 @@ router.post(
             message: "Your post saved successfully",
             status: 1,
           });
-        } else {
-          return res.status(200).json({
+        }
+         else {
+          return res.status(500).json({
             message: err.message,
             status: 0,
           });
+        }
         }
       }
     } catch (err) {
@@ -445,8 +454,20 @@ router.post(
     check("message", "Message is required").not().isEmpty(),
   ],
   async (req, res) => {
+
     try {
       const errors = validationResult(req);
+      const check_img=await Post.findOne({image:req.body.image});
+      if(check_img?.image==req.body.image && check_img?._id==req.params.id){
+        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "message": req.body.message, }});
+        if (response) {
+          return res.status(200).json({
+            message: "Your post updated successfully",
+            status: 1,
+          });
+        } 
+      }
+      else{
       if (req.file) {
         // Homework: Upload file to S3
         if (!errors.isEmpty()) {
@@ -497,6 +518,7 @@ router.post(
 
         
       }
+    }
     } catch (err) {
       return res.status(500).json({
         message: err.message,
@@ -527,7 +549,25 @@ router.get("/get-post/Home", async (req, res, next) => {
 });
 
 //Get Post
-router.get("/get-post/:post_id", async (req, res) => {
+router.get("/get-post/:post_title", async (req, res) => {
+  const param_title=req.params.post_title?.toString().replaceAll("-"," ");
+  try {
+    let response = await Post.findOne({title:param_title});
+    if (response) {
+      return res.send(response);
+    } else {
+      return res.status(500).json({
+        status: 0,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      status: 0,
+    });
+  }
+});
+router.get("/get-blog/:post_id", async (req, res) => {
   try {
     let response = await Post.findById(req.params.post_id);
     if (response) {
