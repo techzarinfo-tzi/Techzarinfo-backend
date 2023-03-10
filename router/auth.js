@@ -415,7 +415,12 @@ router.post(
           });
         }
         else{
-        const post = new Post(request);
+        const post = new Post({
+         title:request.title?.toString().toLowerCase(),
+         image:request.image,
+         message:request.message
+        }
+          );
 
         let response = await post.save();
 
@@ -459,7 +464,7 @@ router.post(
       const errors = validationResult(req);
       const check_img=await Post.findOne({image:req.body.image});
       if(check_img?.image==req.body.image && check_img?._id==req.params.id){
-        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "message": req.body.message, }});
+        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title?req.body.title.toString().toLowerCase():"", "message": req.body.message, }});
         if (response) {
           return res.status(200).json({
             message: "Your post updated successfully",
@@ -485,14 +490,14 @@ router.post(
           if(imageResponse!==req.body.image){
           fs.unlink("./public/uploads/"+imageResponse , async (err) => {
             if(!err){
-             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message, }});
+             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title":req.body.title?req.body.title.toString().toLowerCase():"" , "image": req.body.image, "message": req.body.message, }});
             if (response) {
               return res.status(200).json({
                 message: "Your post updated successfully",
                 status: 1,
               });
             } else {
-            return res.status(200).json({
+            return res.status(500).json({
               message: err.message,
               status: 0,
             });
@@ -508,7 +513,7 @@ router.post(
               status: 1,
             });
           } else {
-            return res.status(200).json({
+            return res.status(500).json({
               message: err.message,
               status: 0,
             });
@@ -521,7 +526,7 @@ router.post(
     }
     } catch (err) {
       return res.status(500).json({
-        message: err.message,
+        message: err?err.code == 11000?"User already exists":err.message:err.message,
         status: 0,
       });
     }
