@@ -440,7 +440,7 @@ router.post(
       }
     } catch (err) {
       return res.status(500).json({
-        message: err.message,
+        message: err?err.code == 11000?"Title already exists":err.message:err.message,
         status: 0,
       });
     }
@@ -526,7 +526,7 @@ router.post(
     }
     } catch (err) {
       return res.status(500).json({
-        message: err?err.code == 11000?"User already exists":err.message:err.message,
+        message: err?err.code == 11000?"Title already exists":err.message:err.message,
         status: 0,
       });
     }
