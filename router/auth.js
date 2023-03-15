@@ -10,6 +10,31 @@ const Register = require("../model/Register");
 const upload = multer({ dest: "./public/uploads/" });
 const bcrypt = require("bcrypt");
 const fs = require('fs');
+const jwt=require('jsonwebtoken');
+const { verify } = require("crypto");
+
+// verify
+function verifyToken(req,res, next) {
+const bearerHeader = req.headers['authorization'];
+if(bearerHeader!=="techzarInfo"){
+  if (bearerHeader) {
+    const token=req.headers['authorization'].split("/")[1];
+     jwt.verify(token, 'techzarinfo',(err,user)=>{
+      console.log(err);
+      if(err){
+      return res?.status(500).json({message: "Token Wrong!"});
+      }
+      else{
+        next(); 
+      }
+    });
+  }
+}
+else{
+  next();
+}
+}
+
 // CONTACT US
 router.post(
   "/store-data",
@@ -116,7 +141,7 @@ router.post(
 );
 
 // Get-contact
-router.get("/get-contact", async (req, res) => {
+router.get("/get-contact",verifyToken, async (req, res) => {
   try {
     const data = await Contact.find().sort({ $natural: -1 });
     if (data) {
@@ -135,7 +160,7 @@ router.get("/get-contact", async (req, res) => {
 });
 
 //Delete-contact
-router.get("/delete-contact/:con_id", async (req, res) => {
+router.get("/delete-contact/:con_id",verifyToken, async (req, res) => {
   deleteresponse = await Contact.deleteOne({_id:req.params.con_id});
  if (deleteresponse) {
    return res.status(500).json({
@@ -219,10 +244,12 @@ router.post(
      const res_password=response.password;
      const cmp = await bcrypt.compare(admin_password, response.password);
      if(cmp){
-      return res.status(200).json({
+      console.log(response._id);
+      const userToken=jwt.sign({id:response._id,email:response.email},'techzarinfo');
+      return res.setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
         message: "Your request sent successfully",
         status: 1,
-        data:response
+        data:"Bearer"+"/"+userToken,
       });
     }
     else{
@@ -346,7 +373,7 @@ router.post(
 );
 
 //Get Hire A Developer 
-router.get("/get-hire", async (req, res) => {
+router.get("/get-hire",verifyToken, async (req, res) => {
   try {
     const data = await Hire.find().sort({ $natural: -1 });
     if (data) {
@@ -365,7 +392,7 @@ router.get("/get-hire", async (req, res) => {
 });
 
 //Delete Hire A Developer 
-router.get("/delete-hire/:dev_id", async (req, res) => {
+router.get("/delete-hire/:dev_id",verifyToken, async (req, res) => {
     deleteresponse = await Hire.deleteOne({_id:req.params.dev_id});
    if (deleteresponse) {
      return res.status(500).json({
@@ -383,7 +410,7 @@ router.get("/delete-hire/:dev_id", async (req, res) => {
   
 //Blog Post
 router.post(
-  "/store-post",
+  "/store-post",verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -448,7 +475,7 @@ router.post(
 );
 //Edit Post
 router.post(
-  "/edit-post/:id",
+  "/edit-post/:id",verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -533,10 +560,10 @@ router.post(
   }
 );
 //Get Post
-router.get("/get-post", async (req, res, next) => {
+router.get("/get-post",verifyToken, async (req, res, next) => {
   try {
     const data = await Post.find().sort({ $natural: -1 });
-    return res.json(data);
+    return res.status(200).json(data);
     
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -572,7 +599,8 @@ router.get("/get-post/:post_title", async (req, res) => {
     });
   }
 });
-router.get("/get-blog/:post_id", async (req, res) => {
+
+router.get("/get-blog/:post_id",verifyToken, async (req, res) => {
   try {
     let response = await Post.findById(req.params.post_id);
     if (response) {
@@ -590,7 +618,7 @@ router.get("/get-blog/:post_id", async (req, res) => {
   }
 });
 //delete Post
-router.get("/delete-post/:post_id", async (req, res) => {
+router.get("/delete-post/:post_id",verifyToken, async (req, res) => {
      deleteresponse = await Post.deleteOne({_id:req.params.post_id});
     if (deleteresponse) {
       return res.status(500).json({
@@ -606,9 +634,10 @@ router.get("/delete-post/:post_id", async (req, res) => {
 } );
 
 //Career Start
+
 //Career post
 router.post(
-  "/store-careers",
+  "/store-careers",verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -658,7 +687,7 @@ router.post(
   }
 );
 //Career get
-router.get("/get-careers", async (req, res) => {
+router.get("/get-careers",verifyToken, async (req, res) => {
   try {
     const data = await Career.find().sort({ $natural: -1 });
     if (data) {
@@ -676,7 +705,7 @@ router.get("/get-careers", async (req, res) => {
   }
 });
 //Career get by id
-router.get("/get-careers/:id", async (req, res) => {
+router.get("/get-careers/:id",verifyToken, async (req, res) => {
   try {
     let response = await Career.findById(req.params.id);
     if (response) {
@@ -694,7 +723,7 @@ router.get("/get-careers/:id", async (req, res) => {
   }
 });
 //Career get by id
-router.get("/delete-career/:careers_id", async (req, res) => {
+router.get("/delete-career/:careers_id",verifyToken, async (req, res) => {
     let delresponse = await Career.deleteOne({_id:req.params.careers_id});
     if (delresponse) {
       return res.status(200).json({
@@ -710,7 +739,7 @@ router.get("/delete-career/:careers_id", async (req, res) => {
 });
 //Edit Career
 router.post(
-  "/edit-careers/:id",
+  "/edit-careers/:id",verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -760,8 +789,9 @@ router.post(
 );
 //Career End
 
+
 // Dashboard
-router.get("/dashboard",async(req,res)=>{
+router.get("/dashboard",verifyToken,async(req,res)=>{
   try {
     const developer = await  Hire.count();
     const users = await Register.count();
