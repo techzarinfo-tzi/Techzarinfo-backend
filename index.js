@@ -4,9 +4,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const auth = require("./router/auth");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 
 const app = express();
-
 mongoose.connect(
   "mongodb://0.0.0.0:27017/techzar",
   {
@@ -18,7 +18,15 @@ mongoose.connect(
     console.log("connected to db success");
   }
 );
-app.use(cors());
+// const corsOptions ={
+//   origin:'*', 
+//   credentials:true, //access-control-allow-credentials:true
+//    optionSuccessStatus:200,
+// }
+app.set('trust proxy', 1) ;
+app.use(cookieParser());
+app.use(cors({credentials: true,
+  origin: 'http://localhost:3000'}));
 const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

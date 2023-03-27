@@ -12,6 +12,7 @@ const bcrypt = require("bcrypt");
 const fs = require('fs');
 const jwt=require('jsonwebtoken');
 const { verify } = require("crypto");
+const cookieParser = require("cookie-parser");
 
 // verify
 function verifyToken(req,res, next) {
@@ -246,7 +247,7 @@ router.post(
      if(cmp){
       console.log(response._id);
       const userToken=jwt.sign({id:response._id,email:response.email},'techzarinfo');
-      return res.setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
+      return res.setHeader('Set-Cookie', 'token=true; Max-Age=365 * 24 * 60 * 60 * 1000').setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
         message: "Your request sent successfully",
         status: 1,
         data:"Bearer"+"/"+userToken,
@@ -565,6 +566,19 @@ router.get("/get-post",verifyToken, async (req, res, next) => {
     const data = await Post.find().sort({ $natural: -1 });
     return res.status(200).json(data);
     
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+router.get("/get-post/:limit&:page",verifyToken, async (req, res, next) => {
+  try {
+    const page =req.params.page;
+    const limit =req.params.limit;
+    startIndex=(page-1)*limit;
+    endIndex=page*limit;
+    const data = await Post.find().sort({ $natural: -1 });
+    const sortData=data.slice(startIndex,endIndex);
+    return res.status(200).json(sortData);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
