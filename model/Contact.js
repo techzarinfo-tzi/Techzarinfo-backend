@@ -15,8 +15,7 @@ const contactSchema = new mongoose.Schema(
             required: true
         },
         country:{
-            type: String,
-            required: true
+            type: String
         },
         service:{
             type: String,

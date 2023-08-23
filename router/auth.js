@@ -141,6 +141,106 @@ router.post(
   }
 );
 
+// CONTACT US - POPUP
+router.post(
+  "/contact-popup",
+  [
+    check("name", "Name is required")
+      .not()
+      .isEmpty()
+      .isLength({ min: 6 })
+      .withMessage("Name must be at least 6 chars long"),
+    check("email", "Email is required").isEmail().normalizeEmail(),
+    check("phone", "Mobile number is required")
+      .not()
+      .isEmpty(),
+    check("service", "Service is required").not().isEmpty(),
+    check("message", "Message is required").not().isEmpty(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        return res.status(200).json({
+          status: 0,
+          errors: errors.array(),
+        });
+      }
+      const hbs = require("nodemailer-express-handlebars");
+      var nodemailer = require("nodemailer");
+      const path = require("path");
+      const request = req.body;
+
+      // initialize nodemailer
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "sales@techzarinfo.com",
+          pass: "yirdglarnqbpvscf",
+        },
+      });
+
+      // point to the template folder
+      const handlebarOptions = {
+        viewEngine: {
+          partialsDir: path.resolve("./views/"),
+          defaultLayout: false,
+        },
+        viewPath: path.resolve("./views/"),
+      };
+
+      // use a template file with nodemailer
+      transporter.use("compile", hbs(handlebarOptions));
+
+      var mailOptions = {
+        from: request.email,
+        to: "sales@techzarinfo.com",
+        bcc: request.email,
+        subject: "CONTACT US",
+        template: "contact", // the name of the template file i.e email.handlebars
+        context: {
+          name: request.name,
+          phone: request.phone,
+          email: request.email,
+          service: request.service,
+          message: request.message,
+        },
+      };
+
+      // trigger the sending of the E-mail
+      transporter.sendMail(mailOptions, async function (error, info) {
+        if (error) {
+          return res.status(200).json({
+            message: error.message,
+            status: 0,
+          });
+        } else {
+          const contact = new Contact(request);
+
+          let response = await contact.save();
+
+          if (response) {
+            return res.status(200).json({
+              message: "Your request sent successfully",
+              status: 1,
+            });
+          } else {
+            return res.status(200).json({
+              message: err.message,
+              status: 0,
+            });
+          }
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: error.message,
+        status: 0,
+      });
+    }
+  }
+);
 // Get-contact
 router.get("/get-contact",verifyToken, async (req, res) => {
   try {
