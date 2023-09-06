@@ -347,11 +347,16 @@ router.post(
      if(cmp){
       console.log(response._id);
       const userToken=jwt.sign({id:response._id,email:response.email},'techzarinfo');
-      return res.setHeader('Set-Cookie', 'token=true; Max-Age=365 * 24 * 60 * 60 * 1000').setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
+      res.cookie("token", userToken, {
+        maxAge: 365 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: false,
+      });
+       res.setHeader('Set-Cookie', 'token=true; Max-Age=365 * 24 * 60 * 60 * 1000').setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
         message: "Your request sent successfully",
         status: 1,
         data:"Bearer"+"/"+userToken,
-      });
+      })
     }
     else{
       return res.status(500).json({
