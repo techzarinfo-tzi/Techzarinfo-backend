@@ -805,7 +805,7 @@ router.post(
   }
 );
 //Career get
-router.get("/get-careers",verifyToken, async (req, res) => {
+router.get("/get-careers", async (req, res) => {
   try {
     const data = await Career.find().sort({ $natural: -1 });
     if (data) {
