@@ -15,25 +15,25 @@ const { verify } = require("crypto");
 const cookieParser = require("cookie-parser");
 
 // verify
-function verifyToken(req,res, next) {
-const bearerHeader = req.headers['authorization'];
-if(bearerHeader!=="techzarInfo"){
-  if (bearerHeader) {
-    const token=req.headers['authorization'].split("/")[1];
-     jwt.verify(token, 'techzarinfo',(err,user)=>{
+function verifyToken(req, res, next) {
+  const bearerHeader = req.headers["authorization"];
+  if (bearerHeader && bearerHeader === "techzarInfo") {
+    // if (bearerHeader) {
+    const token = req.headers["authorization"].split("/")[1];
+    jwt.verify(token, "techzarinfo", (err, user) => {
       console.log(err);
-      if(err){
-      return res?.status(500).json({message: "Token Wrong!"});
-      }
-      else{
-        next(); 
+      if (err) {
+        return res?.status(500).json({ message: "Token Wrong!" });
+      } else {
+        next();
       }
     });
-  }
-}
-else{
-  next();
-}
+    // }
+  } else {
+    next();
+
+    // res?.status(400).json({ message: "Bad request!" }); 
+   }
 }
 
 // CONTACT US
