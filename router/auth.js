@@ -17,7 +17,7 @@ const cookieParser = require("cookie-parser");
 // verify
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
-  if (bearerHeader && bearerHeader === "token") {
+  if (bearerHeader) {
     // if (bearerHeader) {
     const token = req.headers["authorization"].split("/")[1];
     jwt.verify(token, "techzarinfo", (err, user) => {
