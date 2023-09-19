@@ -823,7 +823,7 @@ router.get("/get-careers", async (req, res) => {
   }
 });
 //Career get by id
-router.get("/get-careers/:id",verifyToken, async (req, res) => {
+router.get("/get-careers/:id", async (req, res) => {
   try {
     let response = await Career.findById(req.params.id);
     if (response) {
