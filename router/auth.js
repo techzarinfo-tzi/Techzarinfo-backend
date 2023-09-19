@@ -30,9 +30,8 @@ function verifyToken(req, res, next) {
     });
     // }
   } else {
-    next();
-
-    // res?.status(400).json({ message: "Bad request!" }); 
+    //next();
+    res?.status(400).json({ message: "Bad request!" }); 
    }
 }
 
