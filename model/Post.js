@@ -1,25 +1,43 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
-    {
-        title:{
-            type: String,
-            unique : true,
-            required: true
-        },
-        image:{
-            type: String,
-            required: true
-        },
-        message: {
-            type: String
-        }
+  {
+    title: {
+      type: String,
+      unique: true,
+      required: true,
     },
-    {
-        timestamps: true,
-    }
-)
+    image: {
+      type: String,
+      required: true,
+    },
+    message: {
+      type: String,
+    },
+    type: {
+      type: String,
+      enum: [
+        "Mobile app",
+        "Web app",
+        "Sass product",
+        "E-commerce",
+        "Digital marketing",
+        "Robotics process",
+        "Artificial intelligence",
+        "Internet of things",
+        "Machine learning",
+        "Enterprises software solutions",
+        "Business automation",
+        "Custom ERP",
+        "CRM",
+      ],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const Post = mongoose.model("Post", postSchema);
-    
+
 module.exports = Post;

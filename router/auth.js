@@ -524,6 +524,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage("Title must be at least 6 chars long"),
     check("message", "Message is required").not().isEmpty(),
+    check("type", "Type is required").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -550,7 +551,8 @@ router.post(
         const post = new Post({
          title:request.title?.toString().toLowerCase(),
          image:request.image,
-         message:request.message
+         message:request.message,
+         type:request.type
         }
           );
 
@@ -588,15 +590,16 @@ router.post(
       .isEmpty()
       .isLength({ min: 6 })
       .withMessage("Title must be at least 6 chars long"),
+    check("type", "Type is required"),
     check("message", "Message is required").not().isEmpty(),
   ],
   async (req, res) => {
 
     try {
-      const errors = validationResult(req);
+     const errors = validationResult(req);
       const check_img=await Post.findOne({image:req.body.image});
       if(check_img?.image==req.body.image && check_img?._id==req.params.id){
-        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title?req.body.title.toString().toLowerCase():"", "message": req.body.message, }});
+        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title?req.body.title.toString().toLowerCase():"", "message": req.body.message, "type": req.body.type, }});
         if (response) {
           return res.status(200).json({
             message: "Your post updated successfully",
@@ -622,7 +625,7 @@ router.post(
           if(imageResponse!==req.body.image){
           fs.unlink("./public/uploads/"+imageResponse , async (err) => {
             if(!err){
-             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title":req.body.title?req.body.title.toString().toLowerCase():"" , "image": req.body.image, "message": req.body.message, }});
+             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title":req.body.title?req.body.title.toString().toLowerCase():"" , "image": req.body.image, "message": req.body.message, "type": req.body.type,}});
             if (response) {
               return res.status(200).json({
                 message: "Your post updated successfully",
@@ -638,7 +641,7 @@ router.post(
     });
         }
         else{
-          let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message, }});
+          let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message,"type": req.body.type, }});
           if (response) {
             return res.status(200).json({
               message: "Your post updated successfully",
@@ -670,6 +673,14 @@ router.get("/get-post",verifyToken, async (req, res, next) => {
     const data = await Post.find().sort({ $natural: -1 });
     return res.status(200).json(data);
     
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+router.get("/get-post-by-type/:type", async (req, res, next) => {
+  try {
+    const data = req.params.type ==="Home" ?await Post.find().sort({ $natural: -1 }).limit(3) :await Post.find({ type: req.params.type }).sort({ $natural: -1 }).limit(3);
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -718,7 +729,7 @@ router.get("/get-post/:post_title", async (req, res) => {
   }
 });
 
-router.get("/get-blog/:post_id",verifyToken, async (req, res) => {
+router.get("/get-blog/:post_id", async (req, res) => {
   try {
     let response = await Post.findById(req.params.post_id);
     if (response) {
