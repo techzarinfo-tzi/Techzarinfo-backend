@@ -19,18 +19,17 @@ mongoose.connect(
   }
 );
 // const corsOptions ={
-//   origin:'*', 
+//   origin:'*',
 //   credentials:true, //access-control-allow-credentials:true
 //    optionSuccessStatus:200,
 // }
-app.set('trust proxy', 1) ;
+app.set("trust proxy", 1);
 app.use(cookieParser());
-app.use(cors({credentials: true,
-  origin: ['http://localhost:3000',"http://192.168.29.163:3000"]}));
+app.use(cors({ credentials: true, origin: ["http://localhost:3000"] }));
 const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/", auth);
-app.use(express.static('public')); 
-app.use('/uploads', express.static('uploads'))
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 app.listen(3001, () => console.log("bas"));

@@ -9,8 +9,8 @@ const multer = require("multer");
 const Register = require("../model/Register");
 const upload = multer({ dest: "./public/uploads/" });
 const bcrypt = require("bcrypt");
-const fs = require('fs');
-const jwt=require('jsonwebtoken');
+const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const { verify } = require("crypto");
 const cookieParser = require("cookie-parser");
 
@@ -31,8 +31,8 @@ function verifyToken(req, res, next) {
     // }
   } else {
     //next();
-    res?.status(400).json({ message: "Bad request!" }); 
-   }
+    res?.status(400).json({ message: "Bad request!" });
+  }
 }
 
 // CONTACT US
@@ -150,9 +150,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage("Name must be at least 6 chars long"),
     check("email", "Email is required").isEmail().normalizeEmail(),
-    check("phone", "Mobile number is required")
-      .not()
-      .isEmpty(),
+    check("phone", "Mobile number is required").not().isEmpty(),
     check("service", "Service is required").not().isEmpty(),
     check("message", "Message is required").not().isEmpty(),
   ],
@@ -241,7 +239,7 @@ router.post(
   }
 );
 // Get-contact
-router.get("/get-contact",verifyToken, async (req, res) => {
+router.get("/get-contact", verifyToken, async (req, res) => {
   try {
     const data = await Contact.find().sort({ $natural: -1 });
     if (data) {
@@ -260,21 +258,20 @@ router.get("/get-contact",verifyToken, async (req, res) => {
 });
 
 //Delete-contact
-router.get("/delete-contact/:con_id",verifyToken, async (req, res) => {
-  deleteresponse = await Contact.deleteOne({_id:req.params.con_id});
- if (deleteresponse) {
-   return res.status(500).json({
-     status: 1,
-     message:"deleted Successfully"
-   });
- } else {
-   return res.status(500).json({
-     status: 0,
-     message:"deleted unSuccessfully"
-   });
- }
-} );
-
+router.get("/delete-contact/:con_id", verifyToken, async (req, res) => {
+  deleteresponse = await Contact.deleteOne({ _id: req.params.con_id });
+  if (deleteresponse) {
+    return res.status(500).json({
+      status: 1,
+      message: "deleted Successfully",
+    });
+  } else {
+    return res.status(500).json({
+      status: 0,
+      message: "deleted unSuccessfully",
+    });
+  }
+});
 
 //Register
 router.post(
@@ -291,38 +288,34 @@ router.post(
       .withMessage("password"),
   ],
   async (req, res) => {
-    let verify_email=req.body.email;
-    let verify=await Register.findOne({ email: verify_email });
+    let verify_email = req.body.email;
+    let verify = await Register.findOne({ email: verify_email });
     const saltRounds = await bcrypt.genSalt(10);
     const hashedPwd = await bcrypt.hash(req.body.password, saltRounds);
-    var regUser=new Register({
-      name:req.body.name,
-      email:req.body.email,
-      password:hashedPwd
+    var regUser = new Register({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPwd,
     });
-    if(!verify){
-    let response = await regUser.save();
-    if(response){
+    if (!verify) {
+      let response = await regUser.save();
+      if (response) {
+        return res.status(200).json({
+          message: "Your request sent successfully",
+          status: 1,
+        });
+      } else {
+        return res.status(200).json({
+          message: err.message,
+          status: 0,
+        });
+      }
+    } else {
       return res.status(200).json({
-        message: "Your request sent successfully",
-        status: 1,
-      });
-    }
-    else{
-      return res.status(200).json({
-        message: err.message,
+        message: "Your email is Already Exists",
         status: 0,
       });
     }
-  }
-  else{
-    return res.status(200).json({
-      message: "Your email is Already Exists",
-      status: 0,
-    });
-  }
-
-
   }
 );
 //Login
@@ -336,41 +329,48 @@ router.post(
       .withMessage("password"),
   ],
   async (req, res) => {
-      const admin_email=req.body.email;
-      const admin_password=req.body.password;
-   
+    const admin_email = req.body.email;
+    const admin_password = req.body.password;
+
     let response = await Register.findOne({ email: admin_email });
-    if(response){
-     const res_password=response.password;
-     const cmp = await bcrypt.compare(admin_password, response.password);
-     if(cmp){
-      console.log(response._id);
-      const userToken=jwt.sign({id:response._id,email:response.email},'techzarinfo');
-      res.cookie("token", userToken, {
-        maxAge: 365 * 24 * 60 * 60 * 1000,
-        httpOnly: true,
-        secure: false,
-      });
-       res.setHeader('Set-Cookie', 'token=true; Max-Age=365 * 24 * 60 * 60 * 1000').setHeader('authorization',"Bearer"+"/"+userToken).status(200).json({
-        message: "Your request sent successfully",
-        status: 1,
-        data:"Bearer"+"/"+userToken,
-      })
-    }
-    else{
-      return res.status(500).json({
-        message: "Your password is Incorrect",
-        status: 0,
-      });
-    }
-    }
-    else{
+    if (response) {
+      const res_password = response.password;
+      const cmp = await bcrypt.compare(admin_password, response.password);
+      if (cmp) {
+        console.log(response._id);
+        const userToken = jwt.sign(
+          { id: response._id, email: response.email },
+          "techzarinfo"
+        );
+        res.cookie("token", userToken, {
+          maxAge: 365 * 24 * 60 * 60 * 1000,
+          httpOnly: true,
+          secure: false,
+        });
+        res
+          .setHeader(
+            "Set-Cookie",
+            "token=true; Max-Age=365 * 24 * 60 * 60 * 1000"
+          )
+          .setHeader("authorization", "Bearer" + "/" + userToken)
+          .status(200)
+          .json({
+            message: "Your request sent successfully",
+            status: 1,
+            data: "Bearer" + "/" + userToken,
+          });
+      } else {
+        return res.status(500).json({
+          message: "Your password is Incorrect",
+          status: 0,
+        });
+      }
+    } else {
       return res.status(200).json({
         message: "Invalid email ",
         status: 0,
       });
     }
-
   }
 );
 
@@ -477,8 +477,8 @@ router.post(
   }
 );
 
-//Get Hire A Developer 
-router.get("/get-hire",verifyToken, async (req, res) => {
+//Get Hire A Developer
+router.get("/get-hire", verifyToken, async (req, res) => {
   try {
     const data = await Hire.find().sort({ $natural: -1 });
     if (data) {
@@ -496,26 +496,26 @@ router.get("/get-hire",verifyToken, async (req, res) => {
   }
 });
 
-//Delete Hire A Developer 
-router.get("/delete-hire/:dev_id",verifyToken, async (req, res) => {
-    deleteresponse = await Hire.deleteOne({_id:req.params.dev_id});
-   if (deleteresponse) {
-     return res.status(500).json({
-       status: 1,
-       message:"deleted Successfully"
-     });
-   } else {
-     return res.status(500).json({
-       status: 0,
-       message:"deleted unSuccessfully"
-     });
-   }
-} );
+//Delete Hire A Developer
+router.get("/delete-hire/:dev_id", verifyToken, async (req, res) => {
+  deleteresponse = await Hire.deleteOne({ _id: req.params.dev_id });
+  if (deleteresponse) {
+    return res.status(500).json({
+      status: 1,
+      message: "deleted Successfully",
+    });
+  } else {
+    return res.status(500).json({
+      status: 0,
+      message: "deleted unSuccessfully",
+    });
+  }
+});
 
-  
 //Blog Post
 router.post(
-  "/store-post",verifyToken,
+  "/store-post",
+  verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -540,41 +540,42 @@ router.post(
         const path = require("path");
         req.body.image = req.file.filename;
         const request = req.body;
-        let check_title= await Post.findOne({title:request.title});
-        if(check_title){
+        let check_title = await Post.findOne({ title: request.title });
+        if (check_title) {
           return res.status(500).json({
             message: "Title Already Exists",
             status: 0,
           });
-        }
-        else{
-        const post = new Post({
-         title:request.title?.toString().toLowerCase(),
-         image:request.image,
-         message:request.message,
-         type:request.type
-        }
-          );
-
-        let response = await post.save();
-
-        if (response) {
-          return res.status(200).json({
-            message: "Your post saved successfully",
-            status: 1,
+        } else {
+          const post = new Post({
+            title: request.title?.toString().toLowerCase(),
+            image: request.image,
+            message: request.message,
+            type: request.type,
           });
-        }
-         else {
-          return res.status(500).json({
-            message: err.message,
-            status: 0,
-          });
-        }
+
+          let response = await post.save();
+
+          if (response) {
+            return res.status(200).json({
+              message: "Your post saved successfully",
+              status: 1,
+            });
+          } else {
+            return res.status(500).json({
+              message: err.message,
+              status: 0,
+            });
+          }
         }
       }
     } catch (err) {
       return res.status(500).json({
-        message: err?err.code == 11000?"Title already exists":err.message:err.message,
+        message: err
+          ? err.code == 11000
+            ? "Title already exists"
+            : err.message
+          : err.message,
         status: 0,
       });
     }
@@ -582,7 +583,8 @@ router.post(
 );
 //Edit Post
 router.post(
-  "/edit-post/:id",verifyToken,
+  "/edit-post/:id",
+  verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -594,105 +596,144 @@ router.post(
     check("message", "Message is required").not().isEmpty(),
   ],
   async (req, res) => {
-
     try {
-     const errors = validationResult(req);
-      const check_img=await Post.findOne({image:req.body.image});
-      if(check_img?.image==req.body.image && check_img?._id==req.params.id){
-        let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title?req.body.title.toString().toLowerCase():"", "message": req.body.message, "type": req.body.type, }});
+      const errors = validationResult(req);
+      const check_img = await Post.findOne({ image: req.body.image });
+      if (
+        check_img?.image == req.body.image &&
+        check_img?._id == req.params.id
+      ) {
+        let response = await Post.findOneAndUpdate(
+          { _id: req.params.id },
+          {
+            $set: {
+              title: req.body.title
+                ? req.body.title.toString().toLowerCase()
+                : "",
+              message: req.body.message,
+              type: req.body.type,
+            },
+          }
+        );
         if (response) {
           return res.status(200).json({
             message: "Your post updated successfully",
             status: 1,
           });
-        } 
-      }
-      else{
-      if (req.file) {
-        // Homework: Upload file to S3
-        if (!errors.isEmpty()) {
-          return res.status(200).json({
-            status: 0,
-            errors: errors.array(),
-          });
         }
-        const path = require("path");
-        req.body.image = req.file.filename;
-        const request = req.body;
-       const upadteimg=await Post.findById(req.params.id);
-       if(upadteimg){
-          var imageResponse = upadteimg.image; 
-          if(imageResponse!==req.body.image){
-          fs.unlink("./public/uploads/"+imageResponse , async (err) => {
-            if(!err){
-             let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title":req.body.title?req.body.title.toString().toLowerCase():"" , "image": req.body.image, "message": req.body.message, "type": req.body.type,}});
-            if (response) {
-              return res.status(200).json({
-                message: "Your post updated successfully",
-                status: 1,
+      } else {
+        if (req.file) {
+          // Homework: Upload file to S3
+          if (!errors.isEmpty()) {
+            return res.status(200).json({
+              status: 0,
+              errors: errors.array(),
+            });
+          }
+          const path = require("path");
+          req.body.image = req.file.filename;
+          const request = req.body;
+          const upadteimg = await Post.findById(req.params.id);
+          if (upadteimg) {
+            var imageResponse = upadteimg.image;
+            if (imageResponse !== req.body.image) {
+              fs.unlink("./public/uploads/" + imageResponse, async (err) => {
+                if (!err) {
+                  let response = await Post.findOneAndUpdate(
+                    { _id: req.params.id },
+                    {
+                      $set: {
+                        title: req.body.title
+                          ? req.body.title.toString().toLowerCase()
+                          : "",
+                        image: req.body.image,
+                        message: req.body.message,
+                        type: req.body.type,
+                      },
+                    }
+                  );
+                  if (response) {
+                    return res.status(200).json({
+                      message: "Your post updated successfully",
+                      status: 1,
+                    });
+                  } else {
+                    return res.status(500).json({
+                      message: err.message,
+                      status: 0,
+                    });
+                  }
+                }
               });
             } else {
-            return res.status(500).json({
-              message: err.message,
-              status: 0,
-            });
-           }
-       }
-    });
-        }
-        else{
-          let response = await Post.findOneAndUpdate({ "_id": req.params.id }, { "$set": { "title": req.body.title, "image": req.body.image, "message": req.body.message,"type": req.body.type, }});
-          if (response) {
-            return res.status(200).json({
-              message: "Your post updated successfully",
-              status: 1,
-            });
-          } else {
-            return res.status(500).json({
-              message: err.message,
-              status: 0,
-            });
+              let response = await Post.findOneAndUpdate(
+                { _id: req.params.id },
+                {
+                  $set: {
+                    title: req.body.title,
+                    image: req.body.image,
+                    message: req.body.message,
+                    type: req.body.type,
+                  },
+                }
+              );
+              if (response) {
+                return res.status(200).json({
+                  message: "Your post updated successfully",
+                  status: 1,
+                });
+              } else {
+                return res.status(500).json({
+                  message: err.message,
+                  status: 0,
+                });
+              }
+            }
           }
         }
       }
-
-        
-      }
-    }
     } catch (err) {
       return res.status(500).json({
-        message: err?err.code == 11000?"Title already exists":err.message:err.message,
+        message: err
+          ? err.code == 11000
+            ? "Title already exists"
+            : err.message
+          : err.message,
         status: 0,
       });
     }
   }
 );
 //Get Post
-router.get("/get-post",verifyToken, async (req, res, next) => {
+router.get("/get-post", verifyToken, async (req, res, next) => {
   try {
     const data = await Post.find().sort({ $natural: -1 });
     return res.status(200).json(data);
-    
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 });
 router.get("/get-post-by-type/:type", async (req, res, next) => {
   try {
-    const data = req.params.type ==="Home" ?await Post.find().sort({ $natural: -1 }).limit(3) :await Post.find({ type: req.params.type }).sort({ $natural: -1 }).limit(3);
+    const data =
+      req.params.type === "Home"
+        ? await Post.find().sort({ $natural: -1 }).limit(3)
+        : await Post.find({ type: req.params.type })
+            .sort({ $natural: -1 })
+            .limit(3);
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 });
-router.get("/get-post/:limit&:page",verifyToken, async (req, res, next) => {
+router.get("/get-post/:limit&:page", verifyToken, async (req, res, next) => {
   try {
-    const page =req.params.page;
-    const limit =req.params.limit;
-    startIndex=(page-1)*limit;
-    endIndex=page*limit;
+    const page = req.params.page;
+    const limit = req.params.limit;
+    startIndex = (page - 1) * limit;
+    endIndex = page * limit;
     const data = await Post.find().sort({ $natural: -1 });
-    const sortData=data.slice(startIndex,endIndex);
+    const sortData = data.slice(startIndex, endIndex);
     return res.status(200).json(sortData);
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -703,7 +744,6 @@ router.get("/get-post/Home", async (req, res, next) => {
   try {
     const data = await Post.find().sort({ $natural: -1 }).limit(3);
     return res.json(data);
-    
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -711,9 +751,9 @@ router.get("/get-post/Home", async (req, res, next) => {
 
 //Get Post
 router.get("/get-post/:post_title", async (req, res) => {
-  const param_title=req.params.post_title?.toString().replaceAll("-"," ");
+  const param_title = req.params.post_title?.toString().replaceAll("-", " ");
   try {
-    let response = await Post.findOne({title:param_title});
+    let response = await Post.findOne({ title: param_title });
     if (response) {
       return res.send(response);
     } else {
@@ -747,34 +787,35 @@ router.get("/get-blog/:post_id", async (req, res) => {
   }
 });
 //delete Post
-router.get("/delete-post/:post_id",verifyToken, async (req, res) => {
-     deleteresponse = await Post.deleteOne({_id:req.params.post_id});
-    if (deleteresponse) {
-      return res.status(500).json({
-        status: 1,
-        message:"deleted Successfully"
-      });
-    } else {
-      return res.status(500).json({
-        status: 0,
-        message:"deleted unSuccessfully"
-      });
-    }
-} );
+router.get("/delete-post/:post_id", verifyToken, async (req, res) => {
+  deleteresponse = await Post.deleteOne({ _id: req.params.post_id });
+  if (deleteresponse) {
+    return res.status(500).json({
+      status: 1,
+      message: "deleted Successfully",
+    });
+  } else {
+    return res.status(500).json({
+      status: 0,
+      message: "deleted unSuccessfully",
+    });
+  }
+});
 
 //Career Start
 
 //Career post
 router.post(
-  "/store-careers",verifyToken,
+  "/store-careers",
+  verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
       .not()
       .isEmpty()
-      .isLength({ min: 6 })
-      .withMessage("Title must be at least 6 chars long"),
-    check("message", "Message is required").not().isEmpty(),
+      .check("message", "Message is required")
+      .not()
+      .isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -852,23 +893,24 @@ router.get("/get-careers/:id", async (req, res) => {
   }
 });
 //Career get by id
-router.get("/delete-career/:careers_id",verifyToken, async (req, res) => {
-    let delresponse = await Career.deleteOne({_id:req.params.careers_id});
-    if (delresponse) {
-      return res.status(200).json({
-        status: 1,
-        message:"deleted Successfully"
-      });
-    } else {
-      return res.status(500).json({
-        status: 0,
-        message:"deleted unSuccessfully"
-      });
-    }
+router.get("/delete-career/:careers_id", verifyToken, async (req, res) => {
+  let delresponse = await Career.deleteOne({ _id: req.params.careers_id });
+  if (delresponse) {
+    return res.status(200).json({
+      status: 1,
+      message: "deleted Successfully",
+    });
+  } else {
+    return res.status(500).json({
+      status: 0,
+      message: "deleted unSuccessfully",
+    });
+  }
 });
 //Edit Career
 router.post(
-  "/edit-careers/:id",verifyToken,
+  "/edit-careers/:id",
+  verifyToken,
   upload.single("image"),
   [
     check("title", "title is required")
@@ -893,9 +935,10 @@ router.post(
       // req?.body?.image = req?.file?.filename;
       const request = req.body;
 
-  
-
-      let cresponse = await Career.findOneAndUpdate({_id:req.params.id},{"$set":{"title":req.body.title,"message":req.body.message}});
+      let cresponse = await Career.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: { title: req.body.title, message: req.body.message } }
+      );
       if (cresponse) {
         return res.status(200).json({
           message: "Your post saved successfully",
@@ -918,25 +961,23 @@ router.post(
 );
 //Career End
 
-
 // Dashboard
-router.get("/dashboard",verifyToken,async(req,res)=>{
+router.get("/dashboard", verifyToken, async (req, res) => {
   try {
-    const developer = await  Hire.count();
+    const developer = await Hire.count();
     const users = await Register.count();
-    const blogs= await Post.count();
-    const careers=await Career.count();
-    const contact=await Contact.count();
+    const blogs = await Post.count();
+    const careers = await Career.count();
+    const contact = await Contact.count();
     if (users) {
       return res.json({
-        usersCount:users,
-        blogsCount:blogs,
-        careersCount:careers,
-        contactCount:contact,
-        developerCount:developer,
+        usersCount: users,
+        blogsCount: blogs,
+        careersCount: careers,
+        contactCount: contact,
+        developerCount: developer,
       });
-    } 
-      else {
+    } else {
       return res.status(500).json({
         status: 0,
       });
