@@ -25,7 +25,7 @@ mongoose.connect(
 // }
 app.set("trust proxy", 1);
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "*" }));
+app.use(cors({ credentials: true, origin: ["http://localhost:3000"] }));
 const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
