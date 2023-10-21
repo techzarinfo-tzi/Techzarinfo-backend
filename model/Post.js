@@ -30,6 +30,10 @@ const postSchema = new mongoose.Schema(
         "Business automation",
         "Custom ERP",
         "CRM",
+        "LMS",
+        "SMS",
+        "ZAAR",
+        "CMMS"
       ],
     },
   },
