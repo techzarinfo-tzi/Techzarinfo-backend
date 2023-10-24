@@ -812,8 +812,8 @@ router.post(
   [
     check("title", "title is required")
       .not()
-      .isEmpty()
-      .check("message", "Message is required")
+      .isEmpty(),
+      check("message", "Message is required")
       .not()
       .isEmpty(),
   ],
