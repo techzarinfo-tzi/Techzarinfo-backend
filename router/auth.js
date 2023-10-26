@@ -717,7 +717,7 @@ router.get("/get-post-by-type/:type", async (req, res, next) => {
   try {
     const data =
       req.params.type === "Home"
-        ? await Post.find().sort({ $natural: -1 }).limit(3)
+        ? await Post.find().sort({ $natural: -1 }).limit(4)
         : await Post.find({ type: req.params.type })
             .sort({ $natural: -1 })
             .limit(3);
@@ -726,7 +726,7 @@ router.get("/get-post-by-type/:type", async (req, res, next) => {
     return res.status(500).json({ message: error.message });
   }
 });
-router.get("/get-post/:limit&:page", verifyToken, async (req, res, next) => {
+router.get("/get-post/:limit&:page",  async (req, res, next) => {
   try {
     const page = req.params.page;
     const limit = req.params.limit;
