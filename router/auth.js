@@ -48,7 +48,7 @@ router.post(
     check("phone", "Phone number is required")
       .not()
       .isEmpty()
-      .isLength({ min: 10, max: 10 })
+      .isLength({ min: 5, max: 15 })
       .withMessage("Phone no. must be 10 digits"),
     check("country", "Country is required").not().isEmpty(),
     check("service", "Service is required").not().isEmpty(),
