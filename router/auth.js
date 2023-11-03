@@ -39,11 +39,7 @@ function verifyToken(req, res, next) {
 router.post(
   "/store-data",
   [
-    check("name", "Name is required")
-      .not()
-      .isEmpty()
-      .isLength({ min: 6 })
-      .withMessage("Name must be at least 6 chars long"),
+    check("name", "Name is required"),
     check("email", "Email is required").isEmail().normalizeEmail(),
     check("phone", "Phone number is required")
       .not()
@@ -144,11 +140,7 @@ router.post(
 router.post(
   "/contact-popup",
   [
-    check("name", "Name is required")
-      .not()
-      .isEmpty()
-      .isLength({ min: 6 })
-      .withMessage("Name must be at least 6 chars long"),
+    check("name", "Name is required"),
     check("email", "Email is required").isEmail().normalizeEmail(),
     check("phone", "Mobile number is required").not().isEmpty(),
     check("service", "Service is required").not().isEmpty(),
