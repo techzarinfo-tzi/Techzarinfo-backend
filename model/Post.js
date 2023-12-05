@@ -28,7 +28,7 @@ const postSchema = new mongoose.Schema(
         "Machine learning",
         "Enterprises software solutions",
         "Business automation",
-        "Custom ERP",
+        "ERP",
         "CRM",
         "LMS",
         "SMS",
