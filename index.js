@@ -25,11 +25,11 @@ mongoose.connect(
 // }
 app.set("trust proxy", 1);
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: ["http://localhost:3000"] }));
+app.use(cors({ origin: ["https://www.techzarinfo.com","https://www.techzarinfo.in"] }));
 const path = require("path");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/", auth);
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
-app.listen(3001, () => console.log("bas"));
+app.listen(4000, () => console.log("bas"));

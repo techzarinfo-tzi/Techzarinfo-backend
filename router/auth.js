@@ -540,6 +540,9 @@ router.post(
           });
         } else {
           const post = new Post({
+            meta_title: request.meta_title?.toString().toLowerCase(),
+            meta_description: request.meta_description?.toString(),
+            keywords: request.keywords?.toString().toLowerCase(),
             title: request.title?.toString().toLowerCase(),
             image: request.image,
             message: request.message,
@@ -599,6 +602,9 @@ router.post(
           { _id: req.params.id },
           {
             $set: {
+              meta_title: req.body.meta_title?req.body.meta_title.toString().toLowerCase():"",
+              meta_description: req.body.meta_description?req.body.meta_description.toString():"",
+              keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
               title: req.body.title
                 ? req.body.title.toString().toLowerCase()
                 : "",
@@ -635,6 +641,9 @@ router.post(
                     { _id: req.params.id },
                     {
                       $set: {
+                        meta_title: req.body.meta_title?req.body.meta_title.toString().toLowerCase():"",
+                        meta_description: req.body.meta_description?req.body.meta_description.toString().toLowerCase():"",
+                        keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
                         title: req.body.title
                           ? req.body.title.toString().toLowerCase()
                           : "",
@@ -662,6 +671,9 @@ router.post(
                 { _id: req.params.id },
                 {
                   $set: {
+                    meta_title: req.body.meta_title?req.body.meta_title.toString().toLowerCase():"",
+                    meta_description: req.body.meta_description?req.body.meta_description.toString().toLowerCase():"",
+                    keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
                     title: req.body.title,
                     image: req.body.image,
                     message: req.body.message,

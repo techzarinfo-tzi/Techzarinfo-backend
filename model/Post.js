@@ -2,6 +2,21 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
   {
+    meta_title: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    meta_description: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    keywords: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     title: {
       type: String,
       unique: true,
