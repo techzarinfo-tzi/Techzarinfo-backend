@@ -765,7 +765,7 @@ router.get("/get-post/Home", async (req, res, next) => {
 //Get Post
 router.get("/get-post/:post_title", async (req, res) => {
   try {
-    let response = await Post.findOne({ slug: req.params.slug });
+    let response = await Post.findOne({ slug: req.params.post_title });
     if (response) {
       return res.send(response);
     } else {
