@@ -22,6 +22,11 @@ const postSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
+    slug: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     image: {
       type: String,
       required: true,

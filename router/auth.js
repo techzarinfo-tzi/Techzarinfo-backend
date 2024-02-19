@@ -510,6 +510,10 @@ router.post(
   verifyToken,
   upload.single("image"),
   [
+    check("meta_title", "Meta title is required").not().isEmpty(),
+    check("meta_description", "Meta description is required").not().isEmpty(),
+    check("keywords", "Keywords is required").not().isEmpty(),
+    check("slug", "Slug is required").not().isEmpty(),
     check("title", "title is required")
       .not()
       .isEmpty()
@@ -544,6 +548,7 @@ router.post(
             meta_description: request.meta_description?.toString(),
             keywords: request.keywords?.toString().toLowerCase(),
             title: request.title?.toString().toLowerCase(),
+            slug: request.slug?.toString().toLowerCase(),
             image: request.image,
             message: request.message,
             type: request.type,
@@ -582,6 +587,11 @@ router.post(
   verifyToken,
   upload.single("image"),
   [
+    check("meta_title", "Meta title is required").not().isEmpty(),
+    check("meta_description", "Meta description is required").not().isEmpty(),
+    check("keywords", "Keywords is required").not().isEmpty(),
+    check("slug", "Slug is required").not().isEmpty().trim().custom(value => !/\s/.test(value))
+    .withMessage('No spaces are allowed in the slug'),
     check("title", "title is required")
       .not()
       .isEmpty()
@@ -605,9 +615,8 @@ router.post(
               meta_title: req.body.meta_title?req.body.meta_title.toString().toLowerCase():"",
               meta_description: req.body.meta_description?req.body.meta_description.toString():"",
               keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
-              title: req.body.title
-                ? req.body.title.toString().toLowerCase()
-                : "",
+              title: req.body.title?req.body.title.toString().toLowerCase(): "",
+              slug: req.body.slug?req.body.slug.toString().toLowerCase(): "",
               message: req.body.message,
               type: req.body.type,
             },
@@ -644,9 +653,8 @@ router.post(
                         meta_title: req.body.meta_title?req.body.meta_title.toString().toLowerCase():"",
                         meta_description: req.body.meta_description?req.body.meta_description.toString().toLowerCase():"",
                         keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
-                        title: req.body.title
-                          ? req.body.title.toString().toLowerCase()
-                          : "",
+                        title: req.body.title?req.body.title.toString().toLowerCase(): "",
+                        slug: req.body.slug?req.body.slug.toString().toLowerCase(): "",
                         image: req.body.image,
                         message: req.body.message,
                         type: req.body.type,
@@ -675,6 +683,7 @@ router.post(
                     meta_description: req.body.meta_description?req.body.meta_description.toString().toLowerCase():"",
                     keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
                     title: req.body.title,
+                    slug: req.body.slug?req.body.slug.toString().toLowerCase():"",
                     image: req.body.image,
                     message: req.body.message,
                     type: req.body.type,
@@ -755,9 +764,8 @@ router.get("/get-post/Home", async (req, res, next) => {
 
 //Get Post
 router.get("/get-post/:post_title", async (req, res) => {
-  const param_title = req.params.post_title?.toString().replaceAll("-", " ");
   try {
-    let response = await Post.findOne({ title: param_title });
+    let response = await Post.findOne({ slug: req.params.slug });
     if (response) {
       return res.send(response);
     } else {
