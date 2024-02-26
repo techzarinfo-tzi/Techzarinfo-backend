@@ -549,6 +549,7 @@ router.post(
             keywords: request.keywords?.toString().toLowerCase(),
             title: request.title?.toString().toLowerCase(),
             slug: request.slug?.toString().toLowerCase(),
+            schema: request.schema,
             image: request.image,
             message: request.message,
             type: request.type,
@@ -601,6 +602,7 @@ router.post(
     check("message", "Message is required").not().isEmpty(),
   ],
   async (req, res) => {
+    console.log(req.body)
     try {
       const errors = validationResult(req);
       const check_img = await Post.findOne({ image: req.body.image });
@@ -617,6 +619,7 @@ router.post(
               keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
               title: req.body.title?req.body.title.toString().toLowerCase(): "",
               slug: req.body.slug?req.body.slug.toString().toLowerCase(): "",
+              schema: req.body.schema,
               message: req.body.message,
               type: req.body.type,
             },
@@ -655,6 +658,7 @@ router.post(
                         keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
                         title: req.body.title?req.body.title.toString().toLowerCase(): "",
                         slug: req.body.slug?req.body.slug.toString().toLowerCase(): "",
+                        schema: req.body.schema,
                         image: req.body.image,
                         message: req.body.message,
                         type: req.body.type,
@@ -684,6 +688,7 @@ router.post(
                     keywords: req.body.keywords?req.body.keywords.toString().toLowerCase():"",
                     title: req.body.title,
                     slug: req.body.slug?req.body.slug.toString().toLowerCase():"",
+                    schema: req.body.schema,
                     image: req.body.image,
                     message: req.body.message,
                     type: req.body.type,
