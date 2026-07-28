@@ -14,7 +14,6 @@ const jwt = require("jsonwebtoken");
 const { verify } = require("crypto");
 const cookieParser = require("cookie-parser");
 
-// verify
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
   if (bearerHeader) {
